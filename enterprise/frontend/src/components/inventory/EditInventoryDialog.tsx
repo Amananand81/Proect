@@ -48,8 +48,6 @@ export function EditInventoryDialog({
     paymentMode: "To Pay",
     warehouseLocation: "Main Warehouse",
     incomingStatus: "Pending",
-    outgoingStatus: "Pending",
-    status: "In Inventory",
     remarks: ""
   });
 
@@ -69,8 +67,6 @@ export function EditInventoryDialog({
         paymentMode: item.paymentMode || "To Pay",
         warehouseLocation: item.warehouseLocation || "Main Warehouse",
         incomingStatus: item.incomingStatus || "Pending",
-        outgoingStatus: item.outgoingStatus || "Pending",
-        status: item.status || "In Inventory",
         remarks: item.remarks || ""
       });
     }
@@ -109,96 +105,109 @@ export function EditInventoryDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto overflow-x-hidden w-full max-w-4xl bg-background border-border shadow-2xl rounded-2xl backdrop-blur-sm box-border">
-        <DialogHeader className="pb-4">
-          <DialogTitle className="text-2xl font-bold">Edit Inventory Record ({item.inventoryId})</DialogTitle>
-          <DialogDescription className="text-muted-foreground">
-            Update cargo details, statuses, and freight calculations.
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-6 pt-4 w-full box-border">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full box-border">
+      <DialogContent className="w-[90vw] max-w-[1400px] lg:min-w-[1000px] h-[85vh] p-0 overflow-hidden bg-background border border-border shadow-2xl rounded-2xl flex flex-col box-border">
+        {/* Fixed Header */}
+        <div className="flex-shrink-0 flex items-start justify-between gap-3 border-b border-border/50 px-8 py-6">
+          <div>
+            <DialogTitle className="text-3xl font-bold text-foreground">Edit Inventory Record</DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground mt-2">
+              Update cargo details, statuses, and freight calculations for record #{item.inventoryId}.
+            </DialogDescription>
+          </div>
+        </div>
+
+        {/* Scrollable Body */}
+        <div className="flex-1 overflow-y-auto px-8 py-6">
+          <form id="edit-inventory-form" onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-x-8 gap-y-6">
             <div className="space-y-2">
-              <Label>Inventory ID</Label>
-              <Input disabled value={item.inventoryId} className="bg-secondary/40 font-mono text-muted-foreground" />
+              <Label className="text-sm font-semibold">Inventory ID</Label>
+              <Input disabled value={item.inventoryId} className="h-11 w-full bg-secondary/40 font-mono text-muted-foreground rounded-lg" />
             </div>
             <div className="space-y-2">
-              <Label>LR No / Consignment No</Label>
-              <Input disabled value={item.lrNo} className="bg-secondary/40 font-mono text-muted-foreground" />
+              <Label className="text-sm font-semibold">LR No / Consignment No</Label>
+              <Input disabled value={item.lrNo} className="h-11 w-full bg-secondary/40 font-mono text-muted-foreground rounded-lg" />
             </div>
 
-            <div className="space-y-2 md:col-span-2">
-              <Label>Item / Cargo Name *</Label>
+            <div className="md:col-span-2 space-y-2">
+              <Label className="text-sm font-semibold">Item / Cargo Name *</Label>
               <Input
                 required
                 value={formData.cargoName}
                 onChange={(e) => setFormData({ ...formData, cargoName: e.target.value })}
+                className="h-11 w-full rounded-lg"
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Sender Name *</Label>
+              <Label className="text-sm font-semibold">Sender Name *</Label>
               <Input
                 required
                 value={formData.senderName}
                 onChange={(e) => setFormData({ ...formData, senderName: e.target.value })}
+                className="h-11 w-full rounded-lg"
               />
             </div>
             <div className="space-y-2">
-              <Label>Sender Phone *</Label>
+              <Label className="text-sm font-semibold">Sender Phone *</Label>
               <Input
                 required
                 value={formData.senderPhone}
                 onChange={(e) => setFormData({ ...formData, senderPhone: e.target.value })}
+                className="h-11 w-full rounded-lg"
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Receiver Name *</Label>
+              <Label className="text-sm font-semibold">Receiver Name *</Label>
               <Input
                 required
                 value={formData.receiverName}
                 onChange={(e) => setFormData({ ...formData, receiverName: e.target.value })}
+                className="h-11 w-full rounded-lg"
               />
             </div>
             <div className="space-y-2">
-              <Label>Receiver Phone *</Label>
+              <Label className="text-sm font-semibold">Receiver Phone *</Label>
               <Input
                 required
                 value={formData.receiverPhone}
                 onChange={(e) => setFormData({ ...formData, receiverPhone: e.target.value })}
+                className="h-11 w-full rounded-lg"
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Origin *</Label>
+              <Label className="text-sm font-semibold">Origin *</Label>
               <Input
                 required
                 value={formData.origin}
                 onChange={(e) => setFormData({ ...formData, origin: e.target.value })}
+                className="h-11 w-full rounded-lg"
               />
             </div>
             <div className="space-y-2">
-              <Label>Destination *</Label>
+              <Label className="text-sm font-semibold">Destination *</Label>
               <Input
                 required
                 value={formData.destination}
                 onChange={(e) => setFormData({ ...formData, destination: e.target.value })}
+                className="h-11 w-full rounded-lg"
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Packages *</Label>
+              <Label className="text-sm font-semibold">Packages *</Label>
               <Input
                 required
                 type="number"
                 min="1"
                 value={formData.packages}
                 onChange={(e) => setFormData({ ...formData, packages: Number(e.target.value) })}
+                className="h-11 w-full rounded-lg"
               />
             </div>
             <div className="space-y-2">
-              <Label>Weight (kg) *</Label>
+              <Label className="text-sm font-semibold">Weight (kg) *</Label>
               <Input
                 required
                 type="number"
@@ -206,11 +215,12 @@ export function EditInventoryDialog({
                 step="any"
                 value={formData.weight}
                 onChange={(e) => setFormData({ ...formData, weight: Number(e.target.value) })}
+                className="h-11 w-full rounded-lg"
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Rate (per kg) *</Label>
+              <Label className="text-sm font-semibold">Rate (per kg) *</Label>
               <Input
                 required
                 type="number"
@@ -218,22 +228,23 @@ export function EditInventoryDialog({
                 step="any"
                 value={formData.rate}
                 onChange={(e) => setFormData({ ...formData, rate: Number(e.target.value) })}
+                className="h-11 w-full rounded-lg"
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-primary font-bold">Total Freight (₹)</Label>
-              <div className="h-10 flex items-center px-3 rounded-md bg-primary/10 text-primary font-bold border border-primary/20">
+              <Label className="text-sm font-bold text-primary">Total Freight (₹)</Label>
+              <div className="h-11 flex items-center px-3 rounded-lg bg-primary/10 text-primary font-bold border border-primary/20">
                 ₹{totalFreight.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label>Payment Mode *</Label>
+              <Label className="text-sm font-semibold">Payment Mode *</Label>
               <Select
                 value={formData.paymentMode}
                 onValueChange={(v) => setFormData({ ...formData, paymentMode: v })}
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-11 w-full rounded-lg">
                   <SelectValue placeholder="Select Payment Mode" />
                 </SelectTrigger>
                 <SelectContent>
@@ -244,20 +255,21 @@ export function EditInventoryDialog({
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Warehouse Location</Label>
+              <Label className="text-sm font-semibold">Warehouse Location</Label>
               <Input
                 value={formData.warehouseLocation}
                 onChange={(e) => setFormData({ ...formData, warehouseLocation: e.target.value })}
+                className="h-11 w-full rounded-lg"
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Incoming Status</Label>
+              <Label className="text-sm font-semibold">Incoming Status</Label>
               <Select
                 value={formData.incomingStatus}
                 onValueChange={(v) => setFormData({ ...formData, incomingStatus: v })}
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-11 w-full rounded-lg">
                   <SelectValue placeholder="Incoming Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -269,62 +281,32 @@ export function EditInventoryDialog({
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
-              <Label>Outgoing Status</Label>
-              <Select
-                value={formData.outgoingStatus}
-                onValueChange={(v) => setFormData({ ...formData, outgoingStatus: v })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Outgoing Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="N/A">N/A</SelectItem>
-                  <SelectItem value="Pending">Pending</SelectItem>
-                  <SelectItem value="Dispatched">Dispatched</SelectItem>
-                  <SelectItem value="In Transit">In Transit</SelectItem>
-                  <SelectItem value="Delivered">Delivered</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
 
-            <div className="space-y-2 md:col-span-2">
-              <Label>Main Status</Label>
-              <Select
-                value={formData.status}
-                onValueChange={(v) => setFormData({ ...formData, status: v })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Main Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="In Inventory">In Inventory</SelectItem>
-                  <SelectItem value="Incoming">Incoming</SelectItem>
-                  <SelectItem value="Outgoing">Outgoing</SelectItem>
-                  <SelectItem value="In Transit">In Transit</SelectItem>
-                  <SelectItem value="Delivered">Delivered</SelectItem>
-                  <SelectItem value="Pending">Pending</SelectItem>
-                  <SelectItem value="Cancelled">Cancelled</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2 md:col-span-2">
-              <Label>Remarks</Label>
+            <div className="md:col-span-2 space-y-2">
+              <Label className="text-sm font-semibold">Remarks</Label>
               <Input
                 value={formData.remarks}
                 onChange={(e) => setFormData({ ...formData, remarks: e.target.value })}
+                className="h-11 w-full rounded-lg"
               />
             </div>
-          </div>
+          </form>
+        </div>
 
-          <DialogFooter className="flex gap-3 pt-6 border-t border-border">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-            <Button type="submit" disabled={loading} className="bg-primary hover:bg-primary/90 text-primary-foreground">
-              {loading ? "Updating..." : "Save Changes"}
-            </Button>
-          </DialogFooter>
-        </form>
+        {/* Fixed Footer */}
+        <div className="flex-shrink-0 px-8 py-5 border-t border-border/50 bg-secondary/5 flex justify-end gap-3">
+          <Button type="button" variant="ghost" onClick={() => onOpenChange(false)} className="h-11 px-6 rounded-lg font-medium text-muted-foreground hover:bg-accent">
+            Cancel
+          </Button>
+          <Button 
+            form="edit-inventory-form"
+            type="submit" 
+            disabled={loading} 
+            className="h-11 px-8 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-sm overflow-hidden"
+          >
+            {loading ? "Updating..." : "Save Changes"}
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

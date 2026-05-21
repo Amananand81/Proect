@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mahalaxmi Transport Service - Challan</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #0a0e1a;
+    color: #00e5ff;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    min-height: 100vh;
+    padding: 10px;
+  }
+
+  .challan-wrapper {
+    max-width: 860px;
+    margin: 0 auto;
+    border: 2px solid #00e5ff;
+    border-radius: 4px;
+    background: #0d1526;
+    padding: 14px;
+  }
+
+  /* HEADER */
+  .header {
+    text-align: center;
+    border-bottom: 1px solid #00e5ff44;
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+  }
+  .jurisdiction-top {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: #00e5ffaa;
+    margin-bottom: 6px;
+  }
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .truck-logo {
+    width: 56px;
+    height: 40px;
+    border: 1px solid #00e5ff66;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    color: #00e5ffaa;
+    text-align: center;
+    padding: 2px;
+    line-height: 1.2;
+    flex-shrink: 0;
+  }
+  .company-name {
+    font-size: clamp(18px, 4vw, 26px);
+    font-weight: bold;
+    letter-spacing: 1px;
+    line-height: 1.2;
+  }
+  .address-mob {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px 20px;
+    margin-top: 6px;
+    font-size: 11px;
+    color: #00e5ffbb;
+  }
+  .jurisdiction-sub {
+    margin-top: 8px;
+    font-size: 10px;
+    color: #00e5ff88;
+    letter-spacing: 1px;
+  }
+
+  /* FIELDS ROW */
+  .fields-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 16px;
+    margin-bottom: 10px;
+  }
+  @media (max-width: 500px) {
+    .fields-grid { grid-template-columns: 1fr; }
+  }
+  .field-row {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    border-bottom: 1px solid #00e5ff33;
+    padding-bottom: 4px;
+  }
+  .field-label {
+    font-size: 11px;
+    color: #00e5ff;
+    font-weight: bold;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .field-value {
+    font-size: 11px;
+    color: #00e5ff88;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .field-value input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #00e5ff44;
+    color: #00e5ffcc;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    outline: none;
+    padding: 0 2px;
+  }
+  .field-value input:focus { border-bottom-color: #00e5ff; }
+
+  /* RESPONSIBILITY TEXT */
+  .responsibility-text {
+    font-size: 10px;
+    color: #00e5ff77;
+    margin-bottom: 10px;
+    line-height: 1.5;
+    border-left: 2px solid #00e5ff22;
+    padding-left: 8px;
+  }
+
+  /* TABLE */
+  .table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 10px;
+    border: 1px solid #00e5ff33;
+  }
+  table {
+    width: 100%;
+    min-width: 600px;
+    border-collapse: collapse;
+    font-size: 11px;
+  }
+  thead tr {
+    background: #00e5ff15;
+  }
+  th {
+    color: #00e5ff;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    padding: 5px 6px;
+    border: 1px solid #00e5ff33;
+    text-align: center;
+    white-space: nowrap;
+  }
+  td {
+    border: 1px solid #00e5ff22;
+    padding: 2px 4px;
+    text-align: center;
+    color: #00e5ffcc;
+  }
+  td input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: #00e5ffcc;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    text-align: center;
+    outline: none;
+    min-width: 40px;
+  }
+  .delete-btn {
+    background: none;
+    border: none;
+    color: #ff4444;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 0 4px;
+    line-height: 1;
+  }
+  .delete-btn:hover { color: #ff6666; }
+  .gr-num {
+    color: #00e5ff88;
+    font-size: 11px;
+    padding: 3px 6px;
+  }
+
+  /* ADD ROW */
+  .add-row-btn {
+    display: block;
+    width: 100%;
+    background: transparent;
+    border: 1px dashed #00e5ff44;
+    color: #00e5ff88;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    padding: 7px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+    transition: all 0.2s;
+  }
+  .add-row-btn:hover {
+    border-color: #00e5ff;
+    color: #00e5ff;
+    background: #00e5ff11;
+  }
+
+  /* CHARGES GRID */
+  .charges-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 8px;
+    margin-bottom: 12px;
+    border: 1px solid #00e5ff33;
+    padding: 10px;
+  }
+  .charge-field {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .charge-label {
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: #00e5ff;
+    font-weight: bold;
+  }
+  .charge-value input {
+    width: 100%;
+    background: transparent;
+    border-bottom: 1px solid #00e5ff44;
+    color: #00e5ffcc;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    outline: none;
+    padding: 2px 0;
+  }
+  .charge-value input:focus { border-bottom-color: #00e5ff; }
+
+  /* TOTALS */
+  .totals-box {
+    border: 2px solid #00e5ff66;
+    padding: 10px 14px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 8px;
+    margin-bottom: 12px;
+    background: #00e5ff08;
+  }
+  .total-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .total-label {
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: #00e5ff;
+    font-weight: bold;
+    text-align: center;
+  }
+  .total-value {
+    font-size: 18px;
+    font-weight: bold;
+    color: #00e5ff;
+  }
+
+  /* FOOTER */
+  .footer-text {
+    text-align: center;
+    font-size: 10px;
+    color: #00e5ff77;
+    margin-bottom: 10px;
+    letter-spacing: 0.5px;
+  }
+  .footer-sign {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    border-top: 1px solid #00e5ff33;
+    padding-top: 10px;
+    margin-top: 4px;
+  }
+  .gst-block {
+    font-size: 10px;
+    color: #00e5ff88;
+    line-height: 1.6;
+  }
+  .for-block {
+    font-size: 11px;
+    color: #00e5ff;
+    text-align: right;
+    line-height: 1.6;
+  }
+  .sign-line {
+    border-top: 1px solid #00e5ff66;
+    font-size: 10px;
+    color: #00e5ff77;
+    text-align: center;
+    padding-top: 4px;
+    margin-top: 24px;
+    min-width: 160px;
+  }
+
+  /* Print */
+  @media print {
+    body { background: white; color: black; padding: 0; }
+    .challan-wrapper { border-color: #333; background: white; }
+    .delete-btn, .add-row-btn { display: none; }
+    input { color: black !important; }
+  }
+</style>
+</head>
+<body>
+<div class="challan-wrapper">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="jurisdiction-top">SUBJECT TO PALI JURISDICTION</div>
+    <div class="header-inner">
+      <div class="truck-logo">MAHALAXMI<br>TRANSPORT</div>
+      <div class="company-name">MAHALAXMI<br>TRANSPORT SERVICE</div>
+    </div>
+    <div class="address-mob">
+      <span>14, Transport Nagar, PALI-MARWAR 306 401 (RAJ.)</span>
+      <span>Mob.: 94135-91749</span>
+    </div>
+    <div class="jurisdiction-sub">Subject to PALI Jurisdiction</div>
+  </div>
+
+  <!-- FIELDS -->
+  <div class="fields-grid">
+    <div class="field-row">
+      <span class="field-label">From PALI to</span>
+      <span class="field-value"><input type="text" placeholder="Destination city"></span>
+    </div>
+    <div class="field-row">
+      <span class="field-label">Date</span>
+      <span class="field-value"><input type="date" value="2026-05-20"></span>
+    </div>
+    <div class="field-row">
+      <span class="field-label">Vehicle No.</span>
+      <span class="field-value"><input type="text" placeholder="RJ XX GA XXXX"></span>
+    </div>
+    <div class="field-row">
+      <span class="field-label">Owner's Name</span>
+      <span class="field-value"><input type="text" placeholder="Owner name"></span>
+    </div>
+    <div class="field-row" style="grid-column: 1 / -1;">
+      <span class="field-label">Driver's Name</span>
+      <span class="field-value"><input type="text" placeholder="Driver name"></span>
+    </div>
+  </div>
+
+  <div class="responsibility-text">
+    of this is responsible for goods which is loaded in this truck for safe &amp; sound delivery as per conditions mentioned overleaf.
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-wrapper">
+    <table id="mainTable">
+      <thead>
+        <tr>
+          <th>G.R. NO.</th>
+          <th>PKG.</th>
+          <th>DESTINATION</th>
+          <th>CONTENT</th>
+          <th>CONSIGNOR</th>
+          <th>CONSIGNEE</th>
+          <th>TOTAL</th>
+          <th>WT</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+  <button class="add-row-btn" onclick="addRow()">+ Add New Row</button>
+
+  <!-- CHARGES -->
+  <div class="charges-grid">
+    <div class="charge-field">
+      <div class="charge-label">COMMISSION RS. &amp; P.</div>
+      <div class="charge-value"><input type="number" value="0.00" step="0.01" oninput="updateTotals()"></div>
+    </div>
+    <div class="charge-field">
+      <div class="charge-label">LABOUR CHARGE RS.</div>
+      <div class="charge-value"><input type="number" value="0.00" step="0.01" oninput="updateTotals()"></div>
+    </div>
+    <div class="charge-field">
+      <div class="charge-label">G.R.</div>
+      <div class="charge-value"><input type="number" value="0.00" step="0.01" oninput="updateTotals()"></div>
+    </div>
+    <div class="charge-field">
+      <div class="charge-label">CROSSING / COLLECTION RS.</div>
+      <div class="charge-value"><input type="number" value="0.00" step="0.01" oninput="updateTotals()"></div>
+    </div>
+  </div>
+
+  <!-- TOTALS -->
+  <div class="totals-box">
+    <div class="total-item">
+      <div class="total-label">TOTAL PACKAGES</div>
+      <div class="total-value" id="totalPkg">0</div>
+    </div>
+    <div class="total-item">
+      <div class="total-label">TOTAL WEIGHT</div>
+      <div class="total-value" id="totalWt">0.0</div>
+    </div>
+    <div class="total-item">
+      <div class="total-label">GRAND TOTAL (RS.)</div>
+      <div class="total-value" id="grandTotal">0.00</div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer-text">Quantity &amp; Goods of this memo received in safe and sound condition</div>
+  <div class="footer-sign">
+    <div class="gst-block">
+      GST No. :<br>
+      <strong style="color:#00e5ff">08AIMPG1878N1ZL</strong>
+    </div>
+    <div>
+      <div class="for-block">FOR : MAHALAXMI TRANSPORT SERVICE</div>
+      <div class="sign-line">Owner or Driver's Signature</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let rowCount = 0;
+
+function addRow() {
+  rowCount++;
+  const tbody = document.getElementById('tableBody');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td class="gr-num">${rowCount}</td>
+    <td><input type="number" min="0" placeholder="0" oninput="updateTotals()"></td>
+    <td><input type="text" placeholder="City"></td>
+    <td><input type="text" placeholder="Item"></td>
+    <td><input type="text" placeholder="Sender"></td>
+    <td><input type="text" placeholder="Receiver"></td>
+    <td><input type="number" step="0.01" placeholder="0.00" oninput="updateTotals()"></td>
+    <td><input type="number" step="0.01" placeholder="0.0" oninput="updateTotals()"></td>
+    <td><button class="delete-btn" onclick="deleteRow(this)" title="Remove">✕</button></td>
+  `;
+  tbody.appendChild(tr);
+  updateTotals();
+}
+
+function deleteRow(btn) {
+  btn.closest('tr').remove();
+  renumberRows();
+  updateTotals();
+}
+
+function renumberRows() {
+  const rows = document.querySelectorAll('#tableBody tr');
+  rows.forEach((r, i) => {
+    r.querySelector('.gr-num').textContent = i + 1;
+  });
+  rowCount = rows.length;
+}
+
+function updateTotals() {
+  const rows = document.querySelectorAll('#tableBody tr');
+  let pkg = 0, wt = 0, total = 0;
+  rows.forEach(r => {
+    const inputs = r.querySelectorAll('input');
+    pkg += parseFloat(inputs[0].value) || 0;
+    total += parseFloat(inputs[4].value) || 0;
+    wt += parseFloat(inputs[5].value) || 0;
+  });
+  const charges = document.querySelectorAll('.charge-field input');
+  let chargeSum = 0;
+  charges.forEach(c => chargeSum += parseFloat(c.value) || 0);
+
+  document.getElementById('totalPkg').textContent = pkg;
+  document.getElementById('totalWt').textContent = wt.toFixed(1);
+  document.getElementById('grandTotal').textContent = (total + chargeSum).toFixed(2);
+}
+
+// Init with 18 rows like original
+for (let i = 0; i < 18; i++) addRow();
+</script>
+</body>
+</html>

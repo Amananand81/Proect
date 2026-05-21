@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cash Memo – Sant Kanwar Ram Transport Corp.</title>
+  <style>
+    /* ── CSS Variables – Dark Theme ── */
+    :root {
+      --bg-page:        #0d1b2e;
+      --bg-card:        #0f2240;
+      --bg-card-inner:  #112347;
+      --bg-header:      #0a1a35;
+      --bg-table-head:  #0e2952;
+      --bg-table-cap:   #0e2952;
+      --bg-total:       #081830;
+      --border-outer:   #1e6fbf;
+      --border-inner:   #1a4f8a;
+      --border-field:   #2a6ab5;
+      --border-divider: #1e6fbf;
+      --accent-cyan:    #00d4ff;
+      --accent-cyan-dim:#0099cc;
+      --accent-red:     #ff4d4d;
+      --text-primary:   #e8f4ff;
+      --text-label:     #5bc8f5;
+      --text-muted:     #4a7fa8;
+      --text-address:   #8ab8d8;
+      --input-text:     #d0eeff;
+      --placeholder:    #2e5a7a;
+      --shadow-glow:    0 0 32px rgba(0,180,255,.18), 0 4px 32px rgba(0,0,0,.7);
+    }
+
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg-page);
+      background-image:
+        radial-gradient(ellipse at 20% 20%, rgba(0,100,200,.12) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 80%, rgba(0,60,140,.10) 0%, transparent 60%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 30px 16px 60px;
+      font-family: 'Courier New', Courier, monospace;
+    }
+
+    /* ── Action Bar ── */
+    .action-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+    .btn {
+      padding: 9px 24px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: .5px;
+      transition: all .2s;
+    }
+    .btn:hover { transform: translateY(-1px); filter: brightness(1.15); }
+    .btn-print {
+      background: linear-gradient(135deg, #1a5aaa 0%, #0e3a7a 100%);
+      color: #fff;
+      border: 1px solid var(--accent-cyan-dim);
+      box-shadow: 0 0 12px rgba(0,180,255,.25);
+    }
+    .btn-pdf {
+      background: linear-gradient(135deg, #c0392b 0%, #8b1a1a 100%);
+      color: #fff;
+      border: 1px solid rgba(255,100,100,.4);
+      box-shadow: 0 0 12px rgba(255,80,80,.2);
+    }
+
+    /* ── Receipt Card ── */
+    .receipt {
+      background: var(--bg-card);
+      width: 100%;
+      max-width: 680px;
+      border: 1.5px solid var(--border-outer);
+      box-shadow: var(--shadow-glow);
+      padding: 0;
+      position: relative;
+      border-radius: 4px;
+    }
+
+    /* ── Outer double-rule frame ── */
+    .receipt-inner {
+      border: 1px solid var(--border-inner);
+      margin: 6px;
+      padding: 14px 18px 18px;
+      border-radius: 3px;
+    }
+
+    /* ── Top Strip: D.R.No / Serial / Phones ── */
+    .top-strip {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      border-bottom: 1.5px solid var(--border-divider);
+      padding-bottom: 8px;
+      margin-bottom: 8px;
+    }
+    .dr-block { font-size: 12px; color: var(--text-label); font-weight: 700; white-space: nowrap; }
+    .dr-block input {
+      border: none; border-bottom: 1.5px solid var(--accent-cyan);
+      width: 60px; font-family: inherit; font-size: 12px;
+      color: var(--accent-red); font-weight: 700; text-align: center;
+      background: transparent; outline: none;
+    }
+    .serial-center { text-align: center; flex: 1; line-height: 1.25; }
+    .serial-number {
+      font-size: 26px; font-weight: 900; color: var(--accent-red);
+      letter-spacing: 2px; text-shadow: 0 0 10px rgba(255,77,77,.4);
+    }
+    .memo-title {
+      font-size: 18px; font-weight: 900; color: var(--accent-cyan);
+      letter-spacing: 3px; text-transform: uppercase;
+      text-shadow: 0 0 12px rgba(0,212,255,.35);
+    }
+    .phones { text-align: right; font-size: 11.5px; color: var(--text-label); font-weight: 700; line-height: 1.6; }
+
+    /* ── Company Header ── */
+    .company-header { text-align: center; margin-bottom: 6px; }
+    .company-name {
+      font-size: 17px; font-weight: 900; color: var(--accent-cyan);
+      letter-spacing: .5px; text-transform: uppercase;
+      text-shadow: 0 0 14px rgba(0,212,255,.3);
+    }
+    .company-address { font-size: 11px; color: var(--text-address); margin-top: 2px; }
+    .divider { border: none; border-top: 1.5px solid var(--border-divider); margin: 6px 0; }
+
+    /* ── Body: Form + Table ── */
+    .body-row {
+      display: flex;
+      gap: 0;
+      align-items: flex-start;
+      width: 100%;
+      overflow: hidden;
+    }
+    .form-section { flex: 1; min-width: 0; padding-right: 12px; overflow: hidden; }
+    .table-section { flex-shrink: 0; width: 190px; max-width: 190px; }
+
+    /* ── Form Fields ── */
+    .field-row {
+      display: flex;
+      align-items: flex-end;
+      margin-bottom: 10px;
+      gap: 4px;
+    }
+    .field-label {
+      font-size: 12px; font-weight: 700; color: var(--text-label);
+      white-space: nowrap; min-width: 80px;
+    }
+    .field-input {
+      flex: 1;
+      border: none;
+      border-bottom: 1px solid var(--border-field);
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 12px;
+      color: var(--input-text);
+      background: transparent;
+      outline: none;
+      padding: 1px 4px;
+      min-width: 0;
+      transition: border-color .2s;
+    }
+    .field-input:focus { border-bottom-color: var(--accent-cyan); }
+    .field-input::placeholder { color: var(--placeholder); font-style: italic; }
+    input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.7) sepia(1) saturate(3) hue-rotate(180deg); cursor: pointer; }
+
+    /* Two-column field layout */
+    .fields-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 12px;
+    }
+
+    /* ── Amount Table ── */
+    .amount-table {
+      border-collapse: collapse;
+      font-size: 12px;
+      width: 100%;
+      table-layout: fixed;
+    }
+    .amount-table caption {
+      font-size: 11.5px; font-weight: 700; color: var(--accent-cyan);
+      text-align: center; border: 1px solid var(--border-inner);
+      border-bottom: none; padding: 2px 4px;
+      background: var(--bg-table-cap);
+    }
+    .amount-table th, .amount-table td {
+      border: 1px solid var(--border-inner);
+      padding: 3px 5px;
+      text-align: right;
+      overflow: hidden;
+    }
+    .amount-table th {
+      background: var(--bg-table-head); color: var(--text-label);
+      font-weight: 800; text-align: center; font-size: 11px;
+    }
+    .amount-table col.col-head { width: 48%; }
+    .amount-table col.col-rs   { width: 30%; }
+    .amount-table col.col-p    { width: 22%; }
+    .amount-table .lbl { text-align: left; color: var(--text-label); font-weight: 700; white-space: nowrap; overflow: hidden; }
+    .amount-table .amt-input {
+      border: none; background: transparent; outline: none;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 12px; text-align: right; width: 100%; color: var(--input-text);
+    }
+    .amount-table .amt-input::placeholder { color: var(--placeholder); }
+    .total-row td { font-weight: 900; background: var(--bg-total); color: var(--text-primary); }
+    .total-lbl { color: var(--accent-cyan) !important; }
+
+    /* ── Bottom ── */
+    .bottom-row {
+      display: flex;
+      justify-content: flex-end;
+      align-items: flex-end;
+      margin-top: 18px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border-field);
+    }
+    .d-clerk { font-size: 12px; font-weight: 700; color: var(--text-label); text-align: center; }
+    .d-clerk span { display: block; border-top: 1px solid var(--border-field); margin-top: 22px; padding-top: 2px; }
+
+    /* ── Watermark ── */
+    .watermark {
+      position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%);
+      font-size: 52px; font-weight: 900; color: rgba(0,180,255,.04);
+      pointer-events: none; white-space: nowrap; letter-spacing: 6px;
+      text-transform: uppercase;
+    }
+
+    /* ── Print Styles ── */
+    @media print {
+      @page { size: A5; margin: 8mm; }
+      body { background: #fff !important; padding: 0; justify-content: flex-start; }
+      .action-bar { display: none !important; }
+      .receipt {
+        box-shadow: none !important;
+        max-width: 100%; width: 100%;
+        border: 2px solid #111;
+        margin: 0;
+        background: #fff !important;
+      }
+      .receipt-inner { border-color: #555 !important; }
+      .memo-title, .company-name, .serial-number { color: #111 !important; text-shadow: none !important; }
+      .field-label, .lbl, .total-lbl, .phones, .dr-block, .d-clerk { color: #1a4a8a !important; }
+      .field-input, .amt-input, .dr-block input { background: transparent !important; color: #111 !important; border-color: #555 !important; }
+      .amount-table th, .amount-table caption { background: #eef3ff !important; color: #1a4a8a !important; }
+      .total-row td { background: #fff8e1 !important; }
+      .divider { border-color: #111 !important; }
+      .top-strip, .bottom-row { border-color: #111 !important; }
+      .watermark { color: rgba(26,74,138,.05) !important; }
+      body { background: #fff !important; }
+      .company-address { color: #333 !important; }
+    }
+
+    /* ── Mobile ── */
+    @media (max-width: 520px) {
+      .receipt-inner { padding: 10px 10px 14px; }
+      .serial-number { font-size: 20px; }
+      .memo-title    { font-size: 14px; }
+      .company-name  { font-size: 14px; }
+      .body-row { flex-direction: column; }
+      .form-section  { padding-right: 0; padding-bottom: 14px; }
+      .amount-table  { width: 100%; }
+      .fields-grid   { grid-template-columns: 1fr; }
+      .top-strip     { flex-wrap: wrap; gap: 4px; }
+      .phones        { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Action Buttons -->
+<div class="action-bar" id="actionBar">
+  <button class="btn btn-print" onclick="printMemo()">🖨 Print</button>
+  <button class="btn btn-pdf"   onclick="downloadPDF()">⬇ Download PDF</button>
+</div>
+
+<!-- Receipt -->
+<div class="receipt" id="receipt">
+  <div class="receipt-inner">
+
+    <!-- Top Strip -->
+    <div class="top-strip">
+      <div class="dr-block">
+        D.R. No.&nbsp;<input type="text" id="drNo" value="DR-001" maxlength="10" />
+      </div>
+      <div class="serial-center">
+        <div class="serial-number"></div>
+        <div class="memo-title">Cash Memo</div>
+      </div>
+      <div class="phones">
+        96809-92567<br>86196-06627
+      </div>
+    </div>
+
+    <!-- Company Header -->
+    <div class="company-header">
+      <div class="company-name">Sant Kanwar Ram Transport Corp. (BHL)</div>
+      <div class="company-address">123-124, Transport Nagar, BHILWARA – 311001 (Raj.)</div>
+    </div>
+
+    <hr class="divider"/>
+
+    <!-- Body: Form + Table -->
+    <div class="body-row">
+
+      <!-- Left: Form Fields -->
+      <div class="form-section">
+
+        <div class="fields-grid">
+          <!-- G.R. No. -->
+          <div class="field-row">
+            <span class="field-label">G.R. No.</span>
+            <input class="field-input" type="text" placeholder="e.g. GR-4521" />
+          </div>
+          <!-- Dt. -->
+          <div class="field-row">
+            <span class="field-label">Dt.</span>
+            <input class="field-input" type="date" id="dateField" />
+          </div>
+        </div>
+
+        <!-- Received on -->
+        <div class="field-row">
+          <span class="field-label">Received on</span>
+          <input class="field-input" type="text" placeholder="Truck / Vehicle No." />
+        </div>
+
+        <!-- From -->
+        <div class="field-row">
+          <span class="field-label">From</span>
+          <input class="field-input" type="text" placeholder="Origin city / station" />
+        </div>
+
+        <!-- Consignee -->
+        <div class="field-row">
+          <span class="field-label">Consignee</span>
+          <input class="field-input" type="text" placeholder="Recipient name & address" />
+        </div>
+
+        <!-- Through -->
+        <div class="field-row">
+          <span class="field-label">Through</span>
+          <input class="field-input" type="text" placeholder="Via / Agent name" />
+        </div>
+
+      </div><!-- /form-section -->
+
+      <!-- Right: Amount Table -->
+      <div class="table-section">
+        <table class="amount-table">
+          <colgroup>
+            <col class="col-head">
+            <col class="col-rs">
+            <col class="col-p">
+          </colgroup>
+          <caption>Amount</caption>
+          <thead>
+            <tr>
+              <th style="text-align:left">Head</th>
+              <th>Rs.</th>
+              <th>P.</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="lbl">Freight</td>
+              <td><input class="amt-input" type="number" min="0" placeholder="0" oninput="calcTotal()" id="r_freight" /></td>
+              <td><input class="amt-input" type="number" min="0" max="99" placeholder="00" id="p_freight" /></td>
+            </tr>
+            <tr>
+              <td class="lbl">Labour</td>
+              <td><input class="amt-input" type="number" min="0" placeholder="0" oninput="calcTotal()" id="r_labour" /></td>
+              <td><input class="amt-input" type="number" min="0" max="99" placeholder="00" id="p_labour" /></td>
+            </tr>
+            <tr>
+              <td class="lbl">Stationery</td>
+              <td><input class="amt-input" type="number" min="0" placeholder="0" oninput="calcTotal()" id="r_stationery" /></td>
+              <td><input class="amt-input" type="number" min="0" max="99" placeholder="00" id="p_stationery" /></td>
+            </tr>
+            <tr>
+              <td class="lbl">Commission</td>
+              <td><input class="amt-input" type="number" min="0" placeholder="0" oninput="calcTotal()" id="r_commission" /></td>
+              <td><input class="amt-input" type="number" min="0" max="99" placeholder="00" id="p_commission" /></td>
+            </tr>
+            <tr>
+              <td class="lbl">A.O.C.</td>
+              <td><input class="amt-input" type="number" min="0" placeholder="0" oninput="calcTotal()" id="r_aoc" /></td>
+              <td><input class="amt-input" type="number" min="0" max="99" placeholder="00" id="p_aoc" /></td>
+            </tr>
+            <tr class="total-row">
+              <td class="lbl total-lbl"><strong>Total</strong></td>
+              <td id="totalRs"><strong>0</strong></td>
+              <td id="totalP"><strong>00</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div><!-- /table-section -->
+
+    </div><!-- /body-row -->
+
+    <!-- Bottom Row -->
+    <div class="bottom-row">
+      <div class="d-clerk">
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <span>D. Clerk</span>
+      </div>
+    </div>
+
+  </div><!-- /receipt-inner -->
+
+  <div class="watermark">Transport</div>
+</div><!-- /receipt -->
+
+<script>
+  /* ── Set today's date as default ── */
+  (function () {
+    const d = new Date();
+    const yyyy = d.getFullYear();
+    const mm   = String(d.getMonth() + 1).padStart(2, '0');
+    const dd   = String(d.getDate()).padStart(2, '0');
+    document.getElementById('dateField').value = `${yyyy}-${mm}-${dd}`;
+  })();
+
+  /* ── Auto-calculate Total ── */
+  function calcTotal() {
+    const ids = ['r_freight', 'r_labour', 'r_stationery', 'r_commission', 'r_aoc'];
+    let total = 0;
+    ids.forEach(id => {
+      const v = parseFloat(document.getElementById(id).value) || 0;
+      total += v;
+    });
+    const rs = Math.floor(total);
+    const p  = Math.round((total - rs) * 100);
+    document.getElementById('totalRs').innerHTML = `<strong>${rs}</strong>`;
+    document.getElementById('totalP').innerHTML  = `<strong>${String(p).padStart(2,'0')}</strong>`;
+  }
+
+  /* ── Print ── */
+  function printMemo() {
+    window.print();
+  }
+
+  /* ── Download PDF (via print-to-PDF dialog) ── */
+  function downloadPDF() {
+    const bar = document.getElementById('actionBar');
+    bar.style.display = 'none';
+
+    // Trigger browser print dialog (user saves as PDF)
+    const afterPrint = () => {
+      bar.style.display = 'flex';
+      window.removeEventListener('afterprint', afterPrint);
+    };
+    window.addEventListener('afterprint', afterPrint);
+
+    // Use a small timeout so the DOM updates first
+    setTimeout(() => {
+      window.print();
+    }, 80);
+  }
+</script>
+</body>
+</html>

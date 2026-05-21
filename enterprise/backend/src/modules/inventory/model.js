@@ -40,16 +40,6 @@ const inventorySchema = new mongoose.Schema({
     enum: ['N/A', 'Pending', 'Received', 'Arrived at Warehouse', 'Checked In'],
     default: 'Pending'
   },
-  outgoingStatus: {
-    type: String,
-    enum: ['N/A', 'Pending', 'Dispatched', 'In Transit', 'Delivered'],
-    default: 'Pending'
-  },
-  status: {
-    type: String,
-    enum: ['In Inventory', 'Incoming', 'Outgoing', 'In Transit', 'Delivered', 'Pending', 'Cancelled'],
-    default: 'In Inventory'
-  },
   challanStatus: {
     type: String,
     enum: ['Not Created', 'Created'],

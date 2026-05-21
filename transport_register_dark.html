@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sant Kanwar Ram – Delivery Register</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Exo+2:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep:      #0a0f1e;
+    --bg-panel:     #0d1526;
+    --bg-card:      #111d35;
+    --bg-row:       #0f1a30;
+    --bg-row-alt:   #0d1628;
+    --border:       #1e3a5f;
+    --border-light: #1a3050;
+    --accent:       #00d4e8;
+    --accent2:      #0af;
+    --accent-glow:  rgba(0,212,232,0.18);
+    --accent-btn:   #00c8dc;
+    --text-main:    #d0e8f8;
+    --text-dim:     #5a8aaa;
+    --text-head:    #7ec8e3;
+    --red:          #e05555;
+    --gold:         #f0b429;
+    --highlight:    rgba(0,212,232,0.09);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg-deep);
+    font-family: 'Exo 2', sans-serif;
+    padding: 24px 16px 40px;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse at 20% 10%, rgba(0,100,180,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 90%, rgba(0,180,220,0.07) 0%, transparent 50%);
+  }
+
+  /* ── TOOLBAR ── */
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 20px;
+    align-items: center;
+  }
+
+  .toolbar button {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    padding: 7px 18px;
+    background: transparent;
+    border: 1.5px solid var(--accent);
+    color: var(--accent);
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    position: relative;
+    overflow: hidden;
+  }
+  .toolbar button::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--accent);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .toolbar button:hover { color: #fff; box-shadow: 0 0 14px var(--accent-glow); }
+  .toolbar button:hover::before { opacity: 0.15; }
+
+  .toolbar button.btn-danger {
+    border-color: var(--red);
+    color: var(--red);
+  }
+  .toolbar button.btn-danger:hover { box-shadow: 0 0 14px rgba(224,85,85,0.25); }
+  .toolbar button.btn-danger::before { background: var(--red); }
+
+  .toolbar button.btn-print {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+  .toolbar button.btn-print:hover { box-shadow: 0 0 14px rgba(240,180,41,0.25); }
+  .toolbar button.btn-print::before { background: var(--gold); }
+
+  .toolbar input[type="text"] {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    padding: 7px 12px;
+    border: 1.5px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-main);
+    border-radius: 4px;
+    width: 200px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .toolbar input[type="text"]:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-glow);
+  }
+  .toolbar input[type="text"]::placeholder { color: var(--text-dim); }
+
+  #search-info {
+    font-size: 11px;
+    color: var(--accent);
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  /* ── REGISTER SHEET ── */
+  .register-sheet {
+    background: var(--bg-panel);
+    max-width: 1380px;
+    margin: 0 auto;
+    padding: 24px 28px 32px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    position: relative;
+    box-shadow:
+      0 0 0 1px rgba(0,212,232,0.06),
+      0 8px 40px rgba(0,0,0,0.6),
+      inset 0 1px 0 rgba(0,212,232,0.08);
+  }
+
+  /* corner accents */
+  .register-sheet::before,
+  .register-sheet::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-color: var(--accent);
+    border-style: solid;
+    opacity: 0.5;
+  }
+  .register-sheet::before {
+    top: 6px; left: 6px;
+    border-width: 2px 0 0 2px;
+  }
+  .register-sheet::after {
+    bottom: 6px; right: 6px;
+    border-width: 0 2px 2px 0;
+  }
+
+  /* ── HEADER ── */
+  .reg-header {
+    text-align: center;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+  .reg-header-line {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    margin-bottom: 14px;
+    opacity: 0.5;
+  }
+  .reg-title-main {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: var(--text-main);
+    text-transform: uppercase;
+    text-shadow: 0 0 30px rgba(0,212,232,0.3);
+  }
+  .reg-title-main span { color: var(--accent); }
+  .reg-title-sub {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-top: 3px;
+  }
+  .reg-title-reg {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-top: 5px;
+    text-shadow: 0 0 12px rgba(0,212,232,0.4);
+  }
+  .page-number {
+    position: absolute;
+    right: 0;
+    bottom: 18px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  .page-number span {
+    color: var(--gold);
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    text-shadow: 0 0 10px rgba(240,180,41,0.4);
+  }
+  .page-number span:hover { text-decoration: underline; }
+
+  /* ── TABLE ── */
+  .table-wrap { overflow-x: auto; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    font-family: 'Exo 2', sans-serif;
+    font-size: 12px;
+  }
+
+  col.c-sno   { width: 44px; }
+  col.c-from  { width: 95px; }
+  col.c-to    { width: 90px; }
+  col.c-grno  { width: 95px; }
+  col.c-cgnor { width: 130px; }
+  col.c-cgnee { width: 130px; }
+  col.c-cont  { width: 130px; }
+  col.c-frt   { width: 80px; }
+  col.c-drno  { width: 120px; }
+  col.c-dod   { width: 115px; }
+
+  thead th {
+    border: 1px solid var(--border);
+    padding: 8px 5px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-head);
+    background: var(--bg-card);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    line-height: 1.4;
+    vertical-align: middle;
+    font-family: 'Exo 2', sans-serif;
+    border-bottom: 1px solid var(--accent);
+  }
+  thead th:first-child { border-left: 1px solid var(--border); }
+
+  tbody tr { height: 27px; transition: background 0.1s; }
+  tbody tr:nth-child(even) { background: var(--bg-row-alt); }
+  tbody tr:nth-child(odd)  { background: var(--bg-row); }
+  tbody tr.highlight { background: rgba(0,212,232,0.1) !important; }
+  tbody tr:hover { background: rgba(0,180,220,0.07) !important; }
+
+  td {
+    border: 1px solid var(--border-light);
+    padding: 0;
+    vertical-align: middle;
+    height: 27px;
+    position: relative;
+  }
+
+  td.sno-cell {
+    text-align: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    font-weight: 400;
+    background: var(--bg-card) !important;
+    cursor: default;
+    border-right: 1px solid var(--accent);
+    opacity: 0.8;
+  }
+
+  td[contenteditable="true"] {
+    outline: none;
+    padding: 2px 6px;
+    cursor: text;
+    font-family: 'Exo 2', sans-serif;
+    font-size: 12px;
+    color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  td[contenteditable="true"]:focus {
+    background: rgba(0,212,232,0.06) !important;
+    box-shadow: inset 0 0 0 1.5px var(--accent);
+    z-index: 2;
+    white-space: normal;
+    overflow: visible;
+    color: #fff;
+  }
+
+  /* delete button */
+  .del-btn {
+    display: none;
+    position: absolute;
+    right: 2px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--red);
+    color: #fff;
+    border: none;
+    border-radius: 2px;
+    font-size: 9px;
+    padding: 1px 5px;
+    cursor: pointer;
+    z-index: 4;
+    font-family: 'Share Tech Mono', monospace;
+    line-height: 1.5;
+    opacity: 0.85;
+  }
+  tr:hover .del-btn { display: block; }
+  .del-btn:hover { opacity: 1; }
+
+  /* scan line overlay */
+  .register-sheet .scanlines {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.03) 2px,
+      rgba(0,0,0,0.03) 4px
+    );
+    border-radius: 6px;
+    z-index: 0;
+  }
+  .reg-header, .table-wrap { position: relative; z-index: 1; }
+
+  /* ── PRINT ── */
+  @media print {
+    body { background: #fff; padding: 0; }
+    .toolbar { display: none; }
+    .register-sheet {
+      box-shadow: none; border: 1px solid #ccc;
+      padding: 10px; max-width: 100%;
+      background: #fff;
+    }
+    .scanlines { display: none; }
+    .register-sheet::before, .register-sheet::after { display: none; }
+    .reg-title-main { color: #111; text-shadow: none; }
+    .reg-title-reg { color: #222; text-shadow: none; }
+    .reg-title-sub { color: #555; }
+    .page-number span { color: #c0392b; }
+    thead th {
+      background: #e8ecf0 !important;
+      color: #111 !important;
+      border-bottom: 2px solid #333 !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    tbody tr:nth-child(even) {
+      background: #f5f5f5 !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    tbody tr:nth-child(odd) { background: #fff !important; }
+    td { border-color: #bbb !important; }
+    td[contenteditable] { color: #111 !important; }
+    td.sno-cell { color: #555 !important; background: #f0f0f0 !important; border-right: 2px solid #333 !important; }
+    .del-btn { display: none !important; }
+    @page { size: A3 landscape; margin: 10mm; }
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <input type="text" id="search-box" placeholder="Search entries…" oninput="searchEntries(this.value)">
+  <span id="search-info"></span>
+  <button onclick="addRow()">＋ Add Row</button>
+  <button onclick="deleteLastRow()">－ Delete Last</button>
+  <button class="btn-danger" onclick="clearAll()">✕ Clear All</button>
+  <button class="btn-print" onclick="window.print()">⎙ Print / PDF</button>
+</div>
+
+<div class="register-sheet">
+  <div class="scanlines"></div>
+
+  <!-- HEADER -->
+  <div class="reg-header">
+    <div class="reg-header-line"></div>
+    <div class="reg-title-main">Sant <span>Kanwar Ram</span> Transport Corporation</div>
+    <div class="reg-title-sub">Transport Nagar &nbsp;·&nbsp; Bhilwara (Raj.)</div>
+    <div class="reg-title-reg">◈ Delivery Register ◈</div>
+    <div class="page-number">No. <span id="page-no-val" title="Double-click to edit">—</span></div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-wrap">
+    <table id="reg-table">
+      <colgroup>
+        <col class="c-sno">
+        <col class="c-from">
+        <col class="c-to">
+        <col class="c-grno">
+        <col class="c-cgnor">
+        <col class="c-cgnee">
+        <col class="c-cont">
+        <col class="c-frt">
+        <col class="c-drno">
+        <col class="c-dod">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>S.<br>No.</th>
+          <th>From</th>
+          <th>To</th>
+          <th>G. R. No.</th>
+          <th>Consignor</th>
+          <th>Consignee</th>
+          <th>Contents</th>
+          <th>Freight</th>
+          <th>Delivery Receipt<br>No.</th>
+          <th>Date of Delivery</th>
+        </tr>
+      </thead>
+      <tbody id="reg-body"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+let rowCount = 0;
+
+function makeCell(cls) {
+  const td = document.createElement('td');
+  td.contentEditable = 'true';
+  td.spellcheck = false;
+  if (cls) td.className = cls;
+  return td;
+}
+
+function addRow() {
+  rowCount++;
+  const tr = document.createElement('tr');
+  tr.dataset.row = rowCount;
+
+  const sno = document.createElement('td');
+  sno.className = 'sno-cell';
+  sno.textContent = rowCount;
+  tr.appendChild(sno);
+
+  ['c-from','c-to','c-grno','c-cgnor','c-cgnee','c-cont','c-frt','c-drno','c-dod'].forEach(c => {
+    tr.appendChild(makeCell(c));
+  });
+
+  const delBtn = document.createElement('button');
+  delBtn.className = 'del-btn';
+  delBtn.title = 'Delete row';
+  delBtn.innerHTML = '✕';
+  delBtn.onclick = () => deleteRow(tr.dataset.row);
+  tr.lastChild.appendChild(delBtn);
+
+  document.getElementById('reg-body').appendChild(tr);
+}
+
+function deleteRow(idx) {
+  const tr = document.querySelector(`#reg-body tr[data-row="${idx}"]`);
+  if (tr) tr.remove();
+  renumber();
+}
+
+function deleteLastRow() {
+  const rows = document.querySelectorAll('#reg-body tr');
+  if (!rows.length) return;
+  rows[rows.length - 1].remove();
+  rowCount = document.querySelectorAll('#reg-body tr').length;
+}
+
+function renumber() {
+  let n = 1;
+  document.querySelectorAll('#reg-body tr').forEach(tr => {
+    tr.dataset.row = n;
+    const sno = tr.querySelector('.sno-cell');
+    if (sno) sno.textContent = n;
+    n++;
+  });
+  rowCount = n - 1;
+}
+
+function clearAll() {
+  if (!confirm('Clear all entries? This cannot be undone.')) return;
+  document.getElementById('reg-body').innerHTML = '';
+  rowCount = 0;
+  for (let i = 0; i < 30; i++) addRow();
+}
+
+function searchEntries(q) {
+  q = q.trim().toLowerCase();
+  const info = document.getElementById('search-info');
+  let found = 0;
+  document.querySelectorAll('#reg-body tr').forEach(tr => {
+    tr.classList.remove('highlight');
+    if (!q) return;
+    if (tr.textContent.toLowerCase().includes(q)) {
+      tr.classList.add('highlight');
+      found++;
+    }
+  });
+  info.textContent = q ? `${found} match(es)` : '';
+}
+
+document.getElementById('page-no-val').ondblclick = function() {
+  const v = prompt('Enter page number:', this.textContent === '—' ? '' : this.textContent);
+  if (v !== null && v.trim() !== '') this.textContent = v.trim();
+};
+
+for (let i = 0; i < 30; i++) addRow();
+</script>
+</body>
+</html>

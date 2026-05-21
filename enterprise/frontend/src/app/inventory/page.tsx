@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { cn } from "@/lib/utils";
 import { 
@@ -28,7 +29,9 @@ import {
   Trash2,
   FileText,
   Printer,
-  Truck
+  Truck,
+  Receipt,
+  PlusSquare
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -44,12 +47,17 @@ import { toast } from "sonner";
 import { CreateInventoryDialog } from "@/components/inventory/CreateInventoryDialog";
 import { EditInventoryDialog } from "@/components/inventory/EditInventoryDialog";
 import { ViewInventoryDialog } from "@/components/inventory/ViewInventoryDialog";
-import { GenerateChallanDialog } from "@/components/inventory/GenerateChallanDialog";
-import { ViewChallanDialog } from "@/components/inventory/ViewChallanDialog";
-import { PrintChallanDialog } from "@/components/inventory/PrintChallanDialog";
 import { DeleteInventoryDialog } from "@/components/inventory/DeleteInventoryDialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription
+} from "@/components/ui/dialog";
 
 export default function InventoryPage() {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [inventoryList, setInventoryList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -59,13 +67,14 @@ export default function InventoryPage() {
   const [viewOpen, setViewOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [generateChallanOpen, setGenerateChallanOpen] = useState(false);
-  const [viewChallanOpen, setViewChallanOpen] = useState(false);
-  const [printChallanOpen, setPrintChallanOpen] = useState(false);
+
+  const fetchLock = React.useRef(false);
 
   const fetchInventory = async () => {
+    if (fetchLock.current) return;
     try {
       setLoading(true);
+      fetchLock.current = true;
       const { data } = await api.get("/inventory");
       if (data.success) {
         setInventoryList(data.data);
@@ -74,6 +83,7 @@ export default function InventoryPage() {
       console.error("Failed to fetch inventory records", error);
     } finally {
       setLoading(false);
+      fetchLock.current = false;
     }
   };
 
@@ -94,7 +104,7 @@ export default function InventoryPage() {
       toast.info("No records to export");
       return;
     }
-    const headers = ["Inventory ID", "LR No", "Cargo Name", "Sender Name", "Receiver Name", "Origin", "Destination", "Packages", "Weight", "Rate", "Total Freight", "Payment Mode", "Incoming Status", "Outgoing Status", "Main Status", "Challan Status", "Date"];
+    const headers = ["Inventory ID", "LR No", "Cargo Name", "Sender Name", "Receiver Name", "Origin", "Destination", "Packages", "Weight", "Rate", "Total Freight", "Payment Mode", "Incoming Status", "Date"];
     const csvRows = filteredInventory.map(item => [
       item.inventoryId,
       item.lrNo,
@@ -109,9 +119,6 @@ export default function InventoryPage() {
       item.totalFreight,
       item.paymentMode,
       item.incomingStatus,
-      item.outgoingStatus,
-      item.status,
-      item.challanStatus,
       new Date(item.createdAt).toLocaleDateString()
     ].join(","));
 
@@ -134,7 +141,28 @@ export default function InventoryPage() {
             <h2 className="text-3xl font-bold tracking-tight">Inventory</h2>
             <p className="text-muted-foreground">Manage inventory and cargo records</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div id="cash-memo-action-bar" className="flex flex-wrap items-center gap-3 justify-end">
+            <Button
+              size="sm"
+              onClick={() => router.push("/challan")}
+              className="h-9 px-4 rounded-lg bg-slate-800 text-slate-200 hover:bg-blue-600 hover:text-white border border-slate-700 font-medium transition-all duration-200 flex items-center gap-2"
+            >
+              <FileText className="h-4 w-4" /> Challan
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => router.push("/cash-memo")}
+              className="h-9 px-4 rounded-lg bg-slate-800 text-slate-200 hover:bg-blue-600 hover:text-white border border-slate-700 font-medium transition-all duration-200 flex items-center gap-2"
+            >
+              <Receipt className="h-4 w-4" /> Cash Memo
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => router.push("/entry")}
+              className="h-9 px-4 rounded-lg bg-slate-800 text-slate-200 hover:bg-violet-600 hover:text-white border border-slate-700 font-medium transition-all duration-200 flex items-center gap-2"
+            >
+              <PlusSquare className="h-4 w-4" /> Entry
+            </Button>
             <Button variant="outline" size="sm" onClick={handleExport} className="border-border/50 hover:bg-secondary">
               <Download className="h-4 w-4 mr-2" /> Export
             </Button>
@@ -171,9 +199,6 @@ export default function InventoryPage() {
                   <TableHead className="text-center">Packages</TableHead>
                   <TableHead className="text-right">Weight</TableHead>
                   <TableHead>Incoming Status</TableHead>
-                  <TableHead>Outgoing Status</TableHead>
-                  <TableHead>Main Status</TableHead>
-                  <TableHead>Challan Status</TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -181,13 +206,13 @@ export default function InventoryPage() {
               <TableBody>
                 {loading && inventoryList.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={13} className="text-center py-10 text-muted-foreground">
+                    <TableCell colSpan={11} className="text-center py-10 text-muted-foreground">
                       Loading inventory records...
                     </TableCell>
                   </TableRow>
                 ) : filteredInventory.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={13} className="text-center py-10 text-muted-foreground">
+                    <TableCell colSpan={11} className="text-center py-10 text-muted-foreground">
                       No inventory records found.
                     </TableCell>
                   </TableRow>
@@ -209,8 +234,6 @@ export default function InventoryPage() {
                       <TableCell className="text-center font-mono">{item.packages}</TableCell>
                       <TableCell className="text-right font-mono">{item.weight} kg</TableCell>
                       <TableCell className="text-xs">{item.incomingStatus || "N/A"}</TableCell>
-                      <TableCell className="text-xs">{item.outgoingStatus || "N/A"}</TableCell>
-                      <TableCell className="font-semibold text-xs text-foreground">{item.status}</TableCell>
                       <TableCell className="text-xs font-medium">{item.challanStatus}</TableCell>
                       <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
                         {new Date(item.createdAt).toLocaleDateString()}
@@ -232,54 +255,34 @@ export default function InventoryPage() {
                                 <MoreVertical className="h-4 w-4 text-muted-foreground hover:text-foreground" />
                               </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-52 bg-popover border-border shadow-2xl">
+                            <DropdownMenuContent align="end" className="w-52">
                               <DropdownMenuLabel className="text-[10px] uppercase text-muted-foreground font-semibold">Record Actions</DropdownMenuLabel>
                               <DropdownMenuItem 
                                 onClick={() => { setSelectedItem(item); setViewOpen(true); }}
-                                className="cursor-pointer py-2"
                               >
                                 <Eye className="h-4 w-4 mr-2 text-primary" /> View Details
                               </DropdownMenuItem>
                               <DropdownMenuItem 
                                 onClick={() => { setSelectedItem(item); setEditOpen(true); }}
-                                className="cursor-pointer py-2"
                               >
                                 <Edit className="h-4 w-4 mr-2 text-yellow-500" /> Edit Record
                               </DropdownMenuItem>
                               
                               <DropdownMenuSeparator />
                               <DropdownMenuLabel className="text-[10px] uppercase text-muted-foreground font-semibold">Dispatch / Challan</DropdownMenuLabel>
-                              
-                              {item.challanStatus !== "Created" ? (
-                                <DropdownMenuItem 
-                                  onClick={() => { setSelectedItem(item); setGenerateChallanOpen(true); }}
-                                  className="cursor-pointer py-2 font-medium text-emerald-400 focus:text-emerald-300 focus:bg-emerald-500/10"
-                                >
-                                  <Truck className="h-4 w-4 mr-2" /> Generate Challan
-                                </DropdownMenuItem>
-                              ) : (
-                                <>
-                                  <DropdownMenuItem 
-                                    onClick={() => { setSelectedItem(item); setViewChallanOpen(true); }}
-                                    className="cursor-pointer py-2 text-blue-400 focus:text-blue-300 focus:bg-blue-500/10"
-                                  >
-                                    <FileText className="h-4 w-4 mr-2" /> View Challan
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem 
-                                    onClick={() => { setSelectedItem(item); setPrintChallanOpen(true); }}
-                                    className="cursor-pointer py-2 text-purple-400 focus:text-purple-300 focus:bg-purple-500/10"
-                                  >
-                                    <Printer className="h-4 w-4 mr-2" /> Print Challan
-                                  </DropdownMenuItem>
-                                </>
-                              )}
+                              <DropdownMenuItem 
+                                onClick={() => router.push("/challan")}
+                                className="font-medium text-emerald-400 focus:text-emerald-300 focus:bg-emerald-500/10 hover:bg-emerald-500/10"
+                              >
+                                <Truck className="h-4 w-4 mr-2" /> Open Challan
+                              </DropdownMenuItem>
 
                               <DropdownMenuSeparator />
                               <DropdownMenuItem 
                                 onClick={() => { setSelectedItem(item); setDeleteOpen(true); }}
-                                className="cursor-pointer py-2 text-destructive focus:bg-destructive/20 focus:text-destructive"
+                                variant="destructive"
                               >
-                                <Trash2 className="h-4 w-4 mr-2 text-destructive" /> Delete
+                                <Trash2 className="h-4 w-4 mr-2" /> Delete
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -310,23 +313,6 @@ export default function InventoryPage() {
           onOpenChange={setDeleteOpen} 
           item={selectedItem} 
           onDeleted={() => { setSelectedItem(null); fetchInventory(); }} 
-        />
-        <GenerateChallanDialog 
-          open={generateChallanOpen} 
-          onOpenChange={setGenerateChallanOpen} 
-          item={selectedItem} 
-          onGenerated={() => { setSelectedItem(null); fetchInventory(); }} 
-        />
-        <ViewChallanDialog 
-          open={viewChallanOpen} 
-          onOpenChange={setViewChallanOpen} 
-          item={selectedItem} 
-          onPrint={() => { setViewChallanOpen(false); setPrintChallanOpen(true); }}
-        />
-        <PrintChallanDialog 
-          open={printChallanOpen} 
-          onOpenChange={setPrintChallanOpen} 
-          item={selectedItem} 
         />
       </div>
     </DashboardLayout>

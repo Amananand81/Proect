@@ -31,7 +31,17 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response) {
-      console.error('❌ API Error:', error.response.data.message || error.response.statusText);
+      if (error.response.status === 429) {
+        // Handle too many requests
+        console.error('❌ Rate Limit Error: Too many requests.');
+        if (typeof window !== 'undefined') {
+          import('sonner').then(({ toast }) => {
+            toast.error('Too many requests. Please wait a moment.');
+          });
+        }
+      } else {
+        console.error('❌ API Error:', error.response.data.message || error.response.statusText);
+      }
     } else if (error.request) {
       console.error('❌ Network Error: Backend might be down.');
     } else {

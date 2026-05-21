@@ -1,76 +1,64 @@
 const mongoose = require('mongoose');
 
+const contactSchema = new mongoose.Schema({
+  gst: { type: String, required: true },
+  name: { type: String, required: true },
+  phoneNumber: { type: String },
+  state: { type: String },
+  building: { type: String },
+  place: { type: String },
+  city: { type: String }
+}, { _id: false });
+
 const shipmentSchema = new mongoose.Schema({
-  shipmentId: {
+  consignmentNumber: {
     type: String,
     required: true,
     unique: true
   },
-  sender: {
-    name: { type: String, required: true },
-    phone: { type: String, required: true },
-    address: { type: String }
-  },
-  receiver: {
-    name: { type: String, required: true },
-    phone: { type: String, required: true },
-    address: { type: String }
-  },
-  origin: { type: String, required: true },
-  destination: { type: String, required: true },
-  packages: { type: Number, default: 1 },
-  weight: { type: Number, required: true },
+  toBranch: { type: String, required: true },
+  consignor: { type: contactSchema, required: true },
+  consignee: { type: contactSchema, required: true },
+  bookedAt: { type: Date, default: Date.now },
+  ewayParta: { type: String, default: '' },
+  invoiceNumber: { type: String, default: '' },
+  invoiceValue: { type: Number, required: true },
+  description: { type: String, required: true },
+  quantity: { type: Number, required: true },
+  packageType: { type: String, required: true },
+  privateNumber: { type: String, required: true },
+  actualWeight: { type: Number, required: true },
+  chargedWeight: { type: Number, required: true },
+  rateType: { type: String, required: true },
   rate: { type: Number, required: true },
-  totalFreight: { type: Number, required: true },
-  paymentMode: {
-    type: String,
-    enum: ['ToPay', 'Paid', 'TBB'],
-    default: 'ToPay'
-  },
-  items: [{
-    description: String,
-    quantity: Number,
-    unit: String
-  }],
+  paymentMode: { type: String, required: true },
+  hamali: { type: Number, default: 0 },
+  stationaryCharge: { type: Number, default: 0 },
+  miscellaneousCharge: { type: Number, default: 0 },
+  totalFreight: { type: Number, required: true, default: 0 },
+  totalPayable: { type: Number, required: true, default: 0 },
   status: {
     type: String,
-    enum: ['booked', 'inventory', 'dispatched', 'in-transit', 'delivered', 'cancelled'],
-    default: 'booked'
+    enum: ['Booked', 'In Transit', 'Delivered', 'Cancelled', 'Pending'],
+    default: 'Booked'
   },
-  trackingHistory: [{
-    status: String,
-    location: String,
-    timestamp: { type: Date, default: Date.now },
-    description: String
-  }],
-  currentLocation: {
-    type: { type: String, default: 'Point' },
-    coordinates: { type: [Number], default: [0, 0] }
+  vehicleNumber: {
+    type: String,
+    default: ''
   },
-  assignedVehicle: {
-    type: mongoose.Schema.ObjectId,
-    ref: 'Vehicle'
-  },
-  assignedDriver: {
-    type: mongoose.Schema.ObjectId,
-    ref: 'User'
-  },
-  createdBy: {
-    type: mongoose.Schema.ObjectId,
-    ref: 'User',
-    required: true
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now
+  outgoingStatus: {
+    type: String,
+    enum: ['Pending', 'Loaded', 'Dispatched', 'In Transit', 'Arrived at Branch', 'Out for Delivery', 'Delivered'],
+    default: 'Pending'
   },
   createdAt: {
     type: Date,
     default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
   }
 });
-
-// Index for geo-tracking
-shipmentSchema.index({ currentLocation: '2dsphere' });
 
 module.exports = mongoose.model('Shipment', shipmentSchema);

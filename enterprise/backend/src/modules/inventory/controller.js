@@ -119,8 +119,6 @@ exports.generateChallan = async (req, res) => {
 
     inventory.challanData = challanData;
     inventory.challanStatus = 'Created';
-    inventory.outgoingStatus = 'Dispatched';
-    inventory.status = 'Outgoing';
     inventory.updatedAt = new Date();
 
     const updatedInventory = await inventory.save();

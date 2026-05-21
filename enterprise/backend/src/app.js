@@ -45,7 +45,7 @@ app.use(express.json());
 // Rate Limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
+  max: 1000 // limit each IP to 1000 requests per windowMs (relaxed for dev)
 });
 app.use('/api/', limiter);
 
@@ -63,6 +63,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', require('./modules/auth/routes'));
 app.use('/api/inventory', require('./modules/inventory/routes'));
 app.use('/api/shipments', require('./modules/shipments/routes'));
+app.use('/api/contacts', require('./modules/contacts/routes'));
 app.use('/api/vehicles', require('./modules/vehicles/routes'));
 app.use('/api/drivers', require('./modules/drivers/routes'));
 app.use('/api/invoices', require('./modules/invoices/routes'));
@@ -71,6 +72,8 @@ app.use('/api/clients', require('./modules/clients/routes'));
 app.use('/api/expenses', require('./modules/expenses/routes'));
 app.use('/api/tracking', require('./modules/tracking/routes'));
 app.use('/api/notifications', require('./modules/notifications/routes'));
+app.use('/api/cash-memo', require('./modules/cash-memo/routes'));
+app.use('/api/entry', require('./modules/entry/routes'));
 
 // Global Error Handler
 app.use((err, req, res, next) => {

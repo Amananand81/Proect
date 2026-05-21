@@ -73,9 +73,13 @@ const stats = [
 export default function DashboardPage() {
   const [statsData, setStatsData] = React.useState<any>(null);
 
+  const fetchLock = React.useRef(false);
+
   React.useEffect(() => {
     const fetchStats = async () => {
+      if (fetchLock.current) return;
       try {
+        fetchLock.current = true;
         const { data } = await api.get("/analytics/dashboard");
         if (data.success) {
           setStatsData(data.data);
@@ -83,6 +87,8 @@ export default function DashboardPage() {
       } catch (error) {
         console.error("Failed to fetch dashboard stats", error);
         setStatsData({ totalShipments: 1284, activeTrips: 42, totalRevenue: 840000, availableVehicles: 38 });
+      } finally {
+        fetchLock.current = false;
       }
     };
     fetchStats();
